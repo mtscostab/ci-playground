@@ -1,0 +1,40 @@
+name: teste-pr
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      atualizar_visual:
+        description: 'Gerar/atualizar a imagem de referência do teste visual'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ github.head_ref || github.ref_name }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Gerar referência visual (só manual)
+        if: ${{ inputs.atualizar_visual }}
+        run: |
+          npx playwright test --update-snapshots
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add tests/__visual__
+          git commit -m "Atualiza referência visual" || echo "nada mudou"
+          git push
+      - name: Rodar testes
+        if: ${{ !inputs.atualizar_visual }}
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: relatorio-playwright
+          path: |
+            playwright-report/
+            test-results/

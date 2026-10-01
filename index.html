@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Lista de Tarefas</title>
+  <style>
+    body { font-family: system-ui; max-width: 420px; margin: 40px auto; }
+    h1 { color: #6d3df0; }
+    li.done { text-decoration: line-through; color: #999; }
+    button { background: #6d3df0; color: #fff; border: 0; padding: 8px 14px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Minhas tarefas</h1>
+  <input id="novo" placeholder="Nova tarefa">
+  <button id="add">Adicionar</button>
+  <ul id="lista"></ul>
+  <script>
+    const lista = document.getElementById('lista');
+    document.getElementById('add').onclick = () => {
+      const campo = document.getElementById('novo');
+      if (!campo.value.trim()) return;
+      const li = document.createElement('li');
+      li.textContent = campo.value;
+      li.onclick = () => li.classList.toggle('done');
+      lista.appendChild(li);
+      campo.value = '';
+    };
+  </script>
+</body>
+</html>
